@@ -25,7 +25,7 @@ async def create_user(user: UserCreate):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This Username Has Been Taken! Please Choose Another Username")
-    # hash_pwd = hash_password(user.password)
+
     user.password = hash_password(user.password)
     result = await collection.insert_one(user.model_dump())
     print(result)
@@ -35,12 +35,11 @@ async def create_user(user: UserCreate):
     return user.model_dump()
 
 
+
 @router.post('/login', status_code=status.HTTP_200_OK)
 async def login_user(user: UserLogin):
-    # await user_service.get_user(user.username, user.password)
-    # return {"message": "User Logged In Successfully..."}
 
-    find_user = await collection.find_one({"username": user.username, "password": hash_password(user.password)})
+    find_user = await collection.find_one({"email": user.email, "password": hash_password(user.password)})
 
     if not find_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Invalid Credentials!')
